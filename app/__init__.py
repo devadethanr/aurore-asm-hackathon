@@ -15,6 +15,14 @@ def create_app(config_class=Config):
     CORS(app)
     mongo.init_app(app)
 
+    print(f"MongoDB URI: {app.config['MONGO_URI']}")
+    try:
+        # Attempt to access the database
+        mongo.db.command('ping')
+        print("MongoDB connection successful!")
+    except Exception as e:
+        print(f"MongoDB connection failed: {str(e)}")
+
     from app.routes import main
     app.register_blueprint(main)
 

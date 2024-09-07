@@ -1,10 +1,20 @@
 from flask import Blueprint, jsonify, request, render_template
 from app import mongo
+import datetime
+import hashlib
 
 main = Blueprint('main', __name__)
 
-@main.route('/')
+@main.route('/', methods=['GET', 'POST'])
 def index():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        phone = request.form.get('phone')
+        # Here you would typically process the login/signup
+        # For now, we'll just print the received data
+        print(f"Received: Name - {name}, Phone - {phone}")
+        # You might want to add the user to the database here
+        return jsonify({'status': 'success', 'message': 'Login/Signup successful'})
     return render_template('index.html')
 
 @main.route('/send_location', methods=['POST'])
@@ -12,7 +22,7 @@ def send_location():
     data = request.get_json()
     if not data or 'username' not in data or 'lat' not in data or 'lon' not in data:
         return jsonify({'error': 'Invalid data'}), 400
-
+    print("test for mongo")
     mongo.db.user_locations.update_one(
         {'username': data['username']},
         {"$set": {
@@ -37,3 +47,52 @@ def get_locations():
         }
 
     return jsonify(locations)
+
+def get_device_identifier():
+    user_agent = request.headers.get('User-Agent')
+    accept_language = request.headers.get('Accept-Language')
+    ip_address = request.remote_addr
+    
+    # Combine available information
+    device_info = f"{user_agent}|{accept_language}|{ip_address}"
+    
+    # Create a hash of the device info
+    device_hash = hashlib.md5(device_info.encode()).hexdigest()
+    
+    return device_hash
+
+@main.route('/auth', methods=['POST'])
+def auth():
+    data = request.get_json()
+    name = data.get('name')
+    phone = data.get('phone')
+    if not name or not phone:
+        return jsonify({'error': 'Invalid data'}), 400
+
+    # Get a unique identifier for the device
+    device_id = get_device_identifier()
+
+    user = mongo.db.users.find_one({'phone': phone})
+    if user:
+        # User exists, update name if different and update device_id
+        update_data = {
+            '$set': {
+                'name': name,
+                'device_id': device_id,
+                'last_login': datetime.datetime.utcnow()
+            }
+        }
+        mongo.db.users.update_one({'phone': phone}, update_data)
+        message = 'Login successful'
+    else:
+        # New user, create account with device_id
+        mongo.db.users.insert_one({
+            'name': name,
+            'phone': phone,
+            'device_id': device_id,
+            'created_at': datetime.datetime.utcnow(),
+            'last_login': datetime.datetime.utcnow()
+        })
+        message = 'Signup successful'
+
+    return jsonify({'status': 'success', 'message': message})
