@@ -51,7 +51,7 @@ class Node:
 class DisasterMeshNetwork:
     def __init__(self, mongo_uri):
         self.client = MongoClient(mongo_uri)
-        self.db = self.client.disaster_mesh_network
+        self.db = self.client.rescuenet
         self.nodes = {}
 
     def add_node(self, node_id):
