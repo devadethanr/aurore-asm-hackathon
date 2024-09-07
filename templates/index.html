@@ -1,12 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RescueNet</title>
+    <title>RescueNet - Login/Signup</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>Welcome to RescueNet</h1>
-    <p>This is the emergency communication system.</p>
+<body class="min-h-screen bg-base-200 flex items-center justify-center">
+    <div class="card w-96 bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title text-center">RescueNet</h2>
+            <p class="text-center">Login or Signup to access the emergency communication system.</p>
+            <form id="authForm" class="form-control">
+                <label class="label">
+                    <span class="label-text">Name</span>
+                </label>
+                <input type="text" id="name" placeholder="Enter your name" class="input input-bordered w-full" required>
+                
+                <label class="label">
+                    <span class="label-text">Phone Number</span>
+                </label>
+                <input type="tel" id="phone" placeholder="Enter your phone number" class="input input-bordered w-full" required>
+                
+                <div class="card-actions justify-end mt-6">
+                    <button type="submit" class="btn btn-primary">Login/Signup</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('authForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            
+            fetch('/auth', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, phone }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                // Here you might want to redirect the user or update the UI
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
 </body>
 </html>
