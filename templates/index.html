@@ -1,34 +1,78 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RescueNet - Login/Signup</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bright-red': '#FF0000',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="min-h-screen bg-base-200 flex items-center justify-center">
-    <div class="card w-96 bg-base-100 shadow-xl">
+<body class="min-h-screen bg-white flex items-center justify-center">
+    <div class="card w-96 bg-bright-red shadow-xl text-white">
         <div class="card-body">
-            <h2 class="card-title text-center">RescueNet</h2>
+            <h2 class="card-title text-center text-2xl font-bold">RescueNet</h2>
             <p class="text-center">Login or Signup to access the emergency communication system.</p>
             <form id="authForm" class="form-control">
                 <label class="label">
-                    <span class="label-text">Name</span>
+                    <span class="label-text text-white">Name</span>
                 </label>
-                <input type="text" id="name" placeholder="Enter your name" class="input input-bordered w-full" required>
+                <input type="text" id="name" placeholder="Enter your name" class="input input-bordered w-full bg-white text-black" required>
                 
                 <label class="label">
-                    <span class="label-text">Phone Number</span>
+                    <span class="label-text text-white">Phone Number</span>
                 </label>
-                <input type="tel" id="phone" placeholder="Enter your phone number" class="input input-bordered w-full" required>
+                <input type="tel" id="phone" placeholder="Enter your phone number" class="input input-bordered w-full bg-white text-black" required>
                 
                 <div class="card-actions justify-end mt-6">
-                    <button type="submit" class="btn btn-primary">Login/Signup</button>
+                    <button type="submit" class="btn bg-white text-bright-red hover:bg-gray-200">Login/Signup</button>
                 </div>
             </form>
         </div>
     </div>
+
+    <!-- User Info Modal -->
+    <dialog id="userInfoModal" class="modal">
+        <div class="modal-box bg-bright-red text-white">
+            <h3 class="font-bold text-lg">User Information</h3>
+            <p class="py-2">Your Name: <span id="modalName"></span></p>
+            <p class="py-2">Your Phone Number: <span id="modalPhone"></span></p>
+            <p class="py-2">Your Device ID: <span id="modalDeviceId"></span></p>
+            <div class="modal-action">
+                <button class="btn bg-white text-bright-red hover:bg-gray-200" onclick="openEmergencyWindow()">Open Emergency Message Window</button>
+                <form method="dialog">
+                    <button class="btn bg-white text-bright-red hover:bg-gray-200">Close</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Emergency Message Modal -->
+    <dialog id="emergencyMessageModal" class="modal">
+        <div class="modal-box bg-bright-red text-white">
+            <h3 class="font-bold text-lg">Send Emergency Message</h3>
+            <form id="emergencyMessageForm" class="form-control">
+                <label class="label">
+                    <span class="label-text text-white">Emergency Message</span>
+                </label>
+                <textarea id="emergencyMessage" class="textarea textarea-bordered bg-white text-black" placeholder="Enter your emergency message" required></textarea>
+                <div class="modal-action">
+                    <button type="submit" class="btn bg-white text-bright-red hover:bg-gray-200">Send Message</button>
+                    <button type="button" class="btn bg-white text-bright-red hover:bg-gray-200" onclick="closeEmergencyModal()">Close</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
 
     <script>
         document.getElementById('authForm').addEventListener('submit', function(e) {
@@ -46,7 +90,45 @@
             .then(response => response.json())
             .then(data => {
                 console.log('Success:', data);
-                // Here you might want to redirect the user or update the UI
+                if (data.status === 'success') {
+                    // Populate and show the modal
+                    document.getElementById('modalName').textContent = name;
+                    document.getElementById('modalPhone').textContent = phone;
+                    document.getElementById('modalDeviceId').textContent = data.device_id || 'Not available';
+                    document.getElementById('userInfoModal').showModal();
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+
+        function openEmergencyWindow() {
+            document.getElementById('emergencyMessageModal').showModal();
+        }
+
+        function closeEmergencyModal() {
+            document.getElementById('emergencyMessageModal').close();
+        }
+
+        document.getElementById('emergencyMessageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = document.getElementById('emergencyMessage').value;
+            const name = document.getElementById('modalName').textContent;
+            const phone = document.getElementById('modalPhone').textContent;
+            
+            fetch('/send_emergency_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, phone, message }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Emergency message sent:', data);
+                closeEmergencyModal();
+                // You can add a notification or alert here to inform the user that the message was sent
             })
             .catch((error) => {
                 console.error('Error:', error);

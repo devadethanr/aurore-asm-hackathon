@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, render_template
 from app import mongo
 import datetime
 import hashlib
+from app.meshNetworks.meshNetwork import DisasterMeshNetwork
 
 main = Blueprint('main', __name__)
 
@@ -95,4 +96,34 @@ def auth():
         })
         message = 'Signup successful'
 
-    return jsonify({'status': 'success', 'message': message})
+    return jsonify({'status': 'success', 'message': message, 'device_id': device_id})
+
+@main.route('/send_emergency_message', methods=['POST'])
+def send_emergency_message():
+    data = request.get_json()
+    name = data.get('name')
+    phone = data.get('phone')
+    message = data.get('message')
+
+    if not name or not phone or not message:
+        return jsonify({'error': 'Invalid data'}), 400
+
+    # Initialize the DisasterMeshNetwork
+    mongo_uri = "mongodb+srv://admin:admin@cluster0.y9yngcg.mongodb.net/rescuenet?retryWrites=true&w=majority&appName=Cluster0"
+    network = DisasterMeshNetwork(mongo_uri)
+
+    # Add the user as a node (if not already added)
+    network.add_node(phone)
+
+    # Broadcast the emergency message
+    network.broadcast_emergency(phone, f"Emergency from {name}: {message}")
+
+    # Save the emergency message to the database
+    mongo.db.emergency_messages.insert_one({
+        'name': name,
+        'phone': phone,
+        'message': message,
+        'timestamp': datetime.datetime.utcnow()
+    })
+
+    return jsonify({'status': 'success', 'message': 'Emergency message sent'})

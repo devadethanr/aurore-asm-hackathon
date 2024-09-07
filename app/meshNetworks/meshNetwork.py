@@ -73,6 +73,9 @@ class DisasterMeshNetwork:
             if node.node_id != from_id:
                 self.send_message(from_id, node.node_id, f"EMERGENCY: {message}")
 
+    def close(self):
+        self.client.close()
+
 # Example usage
 if __name__ == "__main__":
     # Replace with your actual MongoDB connection string
@@ -102,4 +105,4 @@ if __name__ == "__main__":
     network.send_message(0, 3, "Node 1 is down, but this message should still get through")
 
     # Close the MongoDB connection
-    network.client.close()
+    network.close()
