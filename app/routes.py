@@ -1,11 +1,11 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, render_template
 from app import mongo
 
 main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    return "Welcome to RescueNet!"
+    return render_template('index.html')
 
 @main.route('/send_location', methods=['POST'])
 def send_location():
