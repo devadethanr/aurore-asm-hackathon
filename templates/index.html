@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RescueNet - Login/Signup</title>
+    <title>RescueNet - Emergency Communication System</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -18,38 +18,134 @@
         }
     </script>
 </head>
-<body class="min-h-screen bg-white flex items-center justify-center">
-    <div class="card w-96 bg-bright-red shadow-xl text-white">
-        <div class="card-body">
-            <h2 class="card-title text-center text-2xl font-bold">RescueNet</h2>
-            <p class="text-center">Login or Signup to access the emergency communication system.</p>
+<body class="min-h-screen bg-white text-black">
+    <header class="bg-bright-red text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold">RescueNet</h1>
+            <nav>
+                <ul class="flex space-x-4">
+                    <li><a href="#home" class="hover:underline">Home</a></li>
+                    <li><a href="#about" class="hover:underline">About</a></li>
+                    <li><a href="#resources" class="hover:underline">Resources</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto mt-8 px-4">
+        <section id="home" class="mb-12">
+            <div class="hero bg-base-200 rounded-lg shadow-xl">
+                <div class="hero-content flex-col lg:flex-row-reverse">
+                    <img src="https://placeimg.com/260/400/arch" class="max-w-sm rounded-lg shadow-2xl" alt="Emergency Response" />
+                    <div>
+                        <h1 class="text-5xl font-bold">Your Lifeline in Disasters Recovery</h1>
+                        <p class="py-6">RescueNet provides a reliable emergency communication system to keep you connected during disasters. Sign up now to access our services and stay prepared.</p>
+                        <button class="btn btn-lg bg-bright-red text-white hover:bg-red-700 text-xl px-8 py-3" onclick="document.getElementById('signupModal').showModal()">Join RescueNet</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="mb-12">
+            <h2 class="text-3xl font-bold mb-4">About RescueNet</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        <h3 class="card-title">Disaster Preparedness</h3>
+                        <ul class="list-disc list-inside">
+                            <li>Create an emergency kit with essentials</li>
+                            <li>Develop a family communication plan</li>
+                            <li>Stay informed about local emergency protocols</li>
+                            <li>Practice evacuation routes and procedures</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        <h3 class="card-title">During a Disaster</h3>
+                        <ul class="list-disc list-inside">
+                            <li>Stay calm and follow official instructions</li>
+                            <li>Use RescueNet to communicate with emergency services</li>
+                            <li>Help others if it's safe to do so</li>
+                            <li>Conserve phone battery for essential communications</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="resources" class="mb-12">
+            <h2 class="text-3xl font-bold mb-4">Emergency Resources</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        <h3 class="card-title">First Aid Tips</h3>
+                        <p>Learn basic first aid to help in emergencies.</p>
+                        <div class="card-actions justify-end">
+                            <button class="btn btn-primary">Learn More</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        <h3 class="card-title">Evacuation Routes</h3>
+                        <p>Find safe evacuation routes in your area.</p>
+                        <div class="card-actions justify-end">
+                            <button class="btn btn-primary">View Routes</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        <h3 class="card-title">Emergency Contacts</h3>
+                        <p>Important numbers for various emergencies.</p>
+                        <div class="card-actions justify-end">
+                            <button class="btn btn-primary">See Contacts</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-bright-red text-white mt-8 p-4">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2024 RescueNet. Stay Safe, Stay Connected.</p>
+        </div>
+    </footer>
+
+    <!-- Signup Modal -->
+    <dialog id="signupModal" class="modal">
+        <div class="modal-box bg-white">
+            <h3 class="font-bold text-lg text-bright-red">Join RescueNet</h3>
             <form id="authForm" class="form-control">
                 <label class="label">
-                    <span class="label-text text-white">Name</span>
+                    <span class="label-text text-black">Name</span>
                 </label>
                 <input type="text" id="name" placeholder="Enter your name" class="input input-bordered w-full bg-white text-black" required>
                 
                 <label class="label">
-                    <span class="label-text text-white">Phone Number</span>
+                    <span class="label-text text-black">Phone Number</span>
                 </label>
                 <input type="tel" id="phone" placeholder="Enter your phone number" class="input input-bordered w-full bg-white text-black" required>
                 
-                <div class="card-actions justify-end mt-6">
-                    <button type="submit" class="btn bg-white text-bright-red hover:bg-gray-200">Login/Signup</button>
+                <div class="modal-action">
+                    <button type="submit" class="btn bg-bright-red text-white hover:bg-red-700">Sign Up</button>
+                    <button type="button" class="btn" onclick="closeSignupModal()">Close</button>
                 </div>
             </form>
         </div>
-    </div>
+    </dialog>
 
     <!-- User Info Modal -->
     <dialog id="userInfoModal" class="modal">
         <div class="modal-box bg-bright-red text-white">
-            <h3 class="font-bold text-lg">User Information</h3>
+            <h3 class="font-bold text-lg">Welcome to RescueNet</h3>
             <p class="py-2">Your Name: <span id="modalName"></span></p>
             <p class="py-2">Your Phone Number: <span id="modalPhone"></span></p>
             <p class="py-2">Your Device ID: <span id="modalDeviceId"></span></p>
             <div class="modal-action">
-                <button class="btn bg-white text-bright-red hover:bg-gray-200" onclick="openEmergencyWindow()">Open Emergency Message Window</button>
+                <button class="btn bg-white text-bright-red hover:bg-gray-200" onclick="openEmergencyWindow()">Send Emergency Message</button>
                 <form method="dialog">
                     <button class="btn bg-white text-bright-red hover:bg-gray-200">Close</button>
                 </form>
@@ -65,7 +161,7 @@
                 <label class="label">
                     <span class="label-text text-white">Emergency Message</span>
                 </label>
-                <textarea id="emergencyMessage" class="textarea textarea-bordered bg-white text-black" placeholder="Enter your emergency message" required></textarea>
+                <textarea id="emergencyMessage" class="textarea textarea-bordered bg-white text-black" placeholder="Describe your emergency situation" required></textarea>
                 <div class="modal-action">
                     <button type="submit" class="btn bg-white text-bright-red hover:bg-gray-200">Send Message</button>
                     <button type="button" class="btn bg-white text-bright-red hover:bg-gray-200" onclick="closeEmergencyModal()">Close</button>
@@ -73,6 +169,19 @@
             </form>
         </div>
     </dialog>
+
+    <!-- Loader -->
+    <div id="loader" class="fixed inset-0 bg-bright-red flex items-center justify-center hidden z-50">
+        <div class="text-white text-6xl font-bold" id="countdown">5</div>
+    </div>
+
+    <!-- Message Popup -->
+    <div id="messagePopup" class="fixed inset-0 bg-bright-red bg-opacity-90 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-8 rounded-lg shadow-xl">
+            <p class="text-bright-red text-2xl font-bold">Your message has been broadcasted to RescueNet.</p>
+            <button onclick="closeMessagePopup()" class="mt-4 btn bg-bright-red text-white hover:bg-red-700">Close</button>
+        </div>
+    </div>
 
     <script>
         document.getElementById('authForm').addEventListener('submit', function(e) {
@@ -111,12 +220,47 @@
             document.getElementById('emergencyMessageModal').close();
         }
 
+        function showLoader() {
+            document.getElementById('loader').classList.remove('hidden');
+            startCountdown();
+        }
+
+        function hideLoader() {
+            document.getElementById('loader').classList.add('hidden');
+        }
+
+        function showMessagePopup() {
+            document.getElementById('messagePopup').classList.remove('hidden');
+        }
+
+        function closeMessagePopup() {
+            document.getElementById('messagePopup').classList.add('hidden');
+        }
+
+        function startCountdown() {
+            let count = 5;
+            const countdownElement = document.getElementById('countdown');
+            const countdownInterval = setInterval(() => {
+                countdownElement.textContent = count;
+                count--;
+                if (count < 0) {
+                    clearInterval(countdownInterval);
+                    hideLoader();
+                    showMessagePopup();
+                }
+            }, 1000);
+        }
+
         document.getElementById('emergencyMessageForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const message = document.getElementById('emergencyMessage').value;
             const name = document.getElementById('modalName').textContent;
             const phone = document.getElementById('modalPhone').textContent;
             
+            // Close all modals
+            closeAllModals();
+            showLoader();
+
             fetch('/send_emergency_message', {
                 method: 'POST',
                 headers: {
@@ -127,13 +271,24 @@
             .then(response => response.json())
             .then(data => {
                 console.log('Emergency message sent:', data);
-                closeEmergencyModal();
-                // You can add a notification or alert here to inform the user that the message was sent
+                // The loader and message popup are now handled by the countdown function
             })
             .catch((error) => {
                 console.error('Error:', error);
+                hideLoader();
+                alert('An error occurred while sending the message.');
             });
         });
+
+        function closeAllModals() {
+            document.getElementById('signupModal').close();
+            document.getElementById('userInfoModal').close();
+            document.getElementById('emergencyMessageModal').close();
+        }
+
+        function closeSignupModal() {
+            document.getElementById('signupModal').close();
+        }
     </script>
 </body>
 </html>
