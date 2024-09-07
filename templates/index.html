@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RescueNet - Emergency Communication System</title>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <title>RescueNet - Emergency Response System</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />\
+    <link rel="icon" href="/static/images/rescuenetlogo.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -17,6 +18,17 @@
             }
         }
     </script>
+    <style>
+        @keyframes countdownFade {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0; transform: scale(1); }
+        }
+
+        .countdown-fade {
+            animation: countdownFade 1s ease-in-out;
+        }
+    </style>
 </head>
 <body class="min-h-screen bg-white text-black">
     <header class="bg-bright-red text-white p-4 shadow-md">
@@ -36,9 +48,9 @@
         <section id="home" class="mb-12">
             <div class="hero bg-base-200 rounded-lg shadow-xl">
                 <div class="hero-content flex-col lg:flex-row-reverse">
-                    <img src="https://placeimg.com/260/400/arch" class="max-w-sm rounded-lg shadow-2xl" alt="Emergency Response" />
+                    <img src="/static/images/rescuenetlogo.png" class="max-w-md object-cover rounded-lg shadow-2xl" alt="Emergency Response" />
                     <div>
-                        <h1 class="text-5xl font-bold">Your Lifeline in Disasters Recovery</h1>
+                        <h1 class="text-5xl font-bold">Your Lifeline in Disaster Recovery</h1>
                         <p class="py-6">RescueNet provides a reliable emergency communication system to keep you connected during disasters. Sign up now to access our services and stay prepared.</p>
                         <button class="btn btn-lg bg-bright-red text-white hover:bg-red-700 text-xl px-8 py-3" onclick="document.getElementById('signupModal').showModal()">Join RescueNet</button>
                     </div>
@@ -117,7 +129,7 @@
     <!-- Signup Modal -->
     <dialog id="signupModal" class="modal">
         <div class="modal-box bg-white">
-            <h3 class="font-bold text-lg text-bright-red">Join RescueNet</h3>
+            <h3 class="font-bold text-lg text-bright-red">Connect with RescueNet</h3>
             <form id="authForm" class="form-control">
                 <label class="label">
                     <span class="label-text text-black">Name</span>
@@ -171,8 +183,12 @@
     </dialog>
 
     <!-- Loader -->
-    <div id="loader" class="fixed inset-0 bg-bright-red flex items-center justify-center hidden z-50">
-        <div class="text-white text-6xl font-bold" id="countdown">5</div>
+    <div id="loader" class="fixed inset-0 bg-bright-red flex flex-col items-center justify-center hidden z-50">
+        <img src="/static/images/rescuenetlogo.png" alt="RescueNet Logo" class="w-32 h-32 mb-4">
+        <div class="text-white text-8xl font-bold relative" style="height: 120px; width: 120px;">
+            <div id="countdown" class="absolute inset-0 flex items-center justify-center countdown-fade">5</div>
+        </div>
+        <button id="cancelSOS" class="btn bg-white text-bright-red hover:bg-gray-200 mt-4">Cancel SOS</button>
     </div>
 
     <!-- Message Popup -->
@@ -181,7 +197,18 @@
             <p class="text-bright-red text-2xl font-bold">Your message has been broadcasted to RescueNet.</p>
             <button onclick="closeMessagePopup()" class="mt-4 btn bg-bright-red text-white hover:bg-red-700">Close</button>
         </div>
-    </div>
+    </div>  
+
+    <!-- SOS Cancelled Modal -->
+    <dialog id="sosCancelledModal" class="modal">
+        <div class="modal-box bg-bright-red text-white">
+            <h3 class="font-bold text-lg">SOS Cancelled</h3>
+            <p class="py-4">Your emergency SOS message has been cancelled.</p>
+            <div class="modal-action">
+                <button onclick="closeSosCancelledModal()" class="btn bg-white text-bright-red hover:bg-gray-200">Close</button>
+            </div>
+        </div>
+    </dialog>
 
     <script>
         document.getElementById('authForm').addEventListener('submit', function(e) {
@@ -220,6 +247,8 @@
             document.getElementById('emergencyMessageModal').close();
         }
 
+        let countdownInterval;
+
         function showLoader() {
             document.getElementById('loader').classList.remove('hidden');
             startCountdown();
@@ -240,16 +269,40 @@
         function startCountdown() {
             let count = 5;
             const countdownElement = document.getElementById('countdown');
-            const countdownInterval = setInterval(() => {
+            
+            function updateCountdown() {
                 countdownElement.textContent = count;
-                count--;
-                if (count < 0) {
-                    clearInterval(countdownInterval);
+                countdownElement.classList.remove('countdown-fade');
+                void countdownElement.offsetWidth; // Trigger reflow
+                countdownElement.classList.add('countdown-fade');
+                
+                if (count > 0) {
+                    count--;
+                    setTimeout(updateCountdown, 1000);
+                } else {
                     hideLoader();
                     showMessagePopup();
                 }
-            }, 1000);
+            }
+            
+            updateCountdown();
         }
+
+        function cancelSOS() {
+            clearInterval(countdownInterval);
+            hideLoader();
+            showSosCancelledModal();
+        }
+
+        function showSosCancelledModal() {
+            document.getElementById('sosCancelledModal').showModal();
+        }
+
+        function closeSosCancelledModal() {
+            document.getElementById('sosCancelledModal').close();
+        }
+
+        document.getElementById('cancelSOS').addEventListener('click', cancelSOS);
 
         document.getElementById('emergencyMessageForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -284,6 +337,7 @@
             document.getElementById('signupModal').close();
             document.getElementById('userInfoModal').close();
             document.getElementById('emergencyMessageModal').close();
+            document.getElementById('sosCancelledModal').close();
         }
 
         function closeSignupModal() {

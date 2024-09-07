@@ -3,6 +3,7 @@ from app import mongo
 import datetime
 import hashlib
 from app.meshNetworks.meshNetwork import DisasterMeshNetwork
+from bson import ObjectId
 
 main = Blueprint('main', __name__)
 
@@ -127,3 +128,26 @@ def send_emergency_message():
     })
 
     return jsonify({'status': 'success', 'message': 'Emergency message sent'})
+
+@main.route('/admin', methods=['GET', 'POST'])
+def admin():
+    emergency_messages = list(mongo.db.emergency_messages.find())
+    return render_template('admin.html', emergency_messages=emergency_messages)
+
+@main.route('/assign_responders', methods=['POST'])
+def assign_responders():
+    message_id = request.form.get('message_id')
+    # Logic to assign first responders (not implemented in this example)
+    return jsonify({'status': 'success', 'message': 'First responders assigned'})
+
+@main.route('/broadcast_message', methods=['POST'])
+def broadcast_message():
+    message_id = request.form.get('message_id')
+    # Logic to broadcast message (not implemented in this example)
+    return jsonify({'status': 'success', 'message': 'Message broadcasted'})
+
+@main.route('/relieve_message', methods=['POST'])
+def relieve_message():
+    message_id = request.form.get('message_id')
+    mongo.db.emergency_messages.delete_one({'_id': ObjectId(message_id)})
+    return jsonify({'status': 'success', 'message': 'Message relieved and deleted'})
