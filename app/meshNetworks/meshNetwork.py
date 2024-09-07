@@ -1,8 +1,8 @@
-import json
-import os
 import random
 import time
 import logging
+from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -13,11 +13,10 @@ class EmptyConnectionsError(Exception):
     pass
 
 class Node:
-    def __init__(self, node_id, storage_path):
+    def __init__(self, node_id, db):
         self.node_id = node_id
+        self.db = db
         self.connections = []
-        self.messages = []
-        self.storage_path = storage_path
         self.load_state()
 
     def add_connection(self, node):
@@ -30,49 +29,42 @@ class Node:
             return  # Message expired
 
         if self.node_id == target_id:
-            self.messages.append(message)
-            self.save_state()
-            print(f"Node {self.node_id} received: {message}")
+            self.db.messages.insert_one({"node_id": self.node_id, "message": message})
+            logger.info(f"Node {self.node_id} received: {message}")
         else:
             next_node = random.choice(self.connections)
-            print(f"Node {self.node_id} forwarding to {next_node.node_id}, TTL: {ttl}")
-            # TTL stands for "Time To Live", which is a counter that decreases with each hop to prevent infinite message loops
+            logger.info(f"Node {self.node_id} forwarding to {next_node.node_id}, TTL: {ttl}")
             next_node.send_message(message, target_id, ttl - 1)
 
     def save_state(self):
         state = {
             "node_id": self.node_id,
             "connections": [node.node_id for node in self.connections],
-            "messages": self.messages
         }
-        with open(os.path.join(self.storage_path, f"node_{self.node_id}.json"), "w") as f:
-            json.dump(state, f)
+        self.db.nodes.update_one({"node_id": self.node_id}, {"$set": state}, upsert=True)
 
     def load_state(self):
-        try:
-            with open(os.path.join(self.storage_path, f"node_{self.node_id}.json"), "r") as f:
-                state = json.load(f)
-                self.messages = state["messages"]
-        except FileNotFoundError:
-            pass  # No saved state yet
+        state = self.db.nodes.find_one({"node_id": self.node_id})
+        if state:
+            self.connections = [Node(node_id, self.db) for node_id in state.get("connections", [])]
 
 class DisasterMeshNetwork:
-    def __init__(self, storage_path):
+    def __init__(self, mongo_uri):
+        self.client = MongoClient(mongo_uri)
+        self.db = self.client.disaster_mesh_network
         self.nodes = {}
-        self.storage_path = storage_path
-        os.makedirs(storage_path, exist_ok=True)
 
     def add_node(self, node_id):
         if node_id not in self.nodes:
-            self.nodes[node_id] = Node(node_id, self.storage_path)
+            self.nodes[node_id] = Node(node_id, self.db)
 
     def connect_nodes(self, node_id1, node_id2):
         node1 = self.nodes[node_id1]
         node2 = self.nodes[node_id2]
         node1.add_connection(node2)
+        node2.add_connection(node1)
 
     def send_message(self, from_id, to_id, message):
-        
         if from_id in self.nodes:
             self.nodes[from_id].send_message(message, to_id)
 
@@ -83,7 +75,9 @@ class DisasterMeshNetwork:
 
 # Example usage
 if __name__ == "__main__":
-    network = DisasterMeshNetwork("disaster_mesh_data")
+    # Replace with your actual MongoDB connection string
+    mongo_uri = "mongodb+srv://admin:admin@cluster0.y9yngcg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    network = DisasterMeshNetwork(mongo_uri)
 
     # Add nodes (simulating different devices)
     for i in range(5):
@@ -101,8 +95,11 @@ if __name__ == "__main__":
     network.send_message(0, 4, "Hello, Node 4!")
 
     # Simulate emergency broadcast
-    # network.broadcast_emergency(2, "Evacuation required in sector 7")
+    network.broadcast_emergency(2, "Evacuation required in sector 7")
 
     # Simulate node failure and message rerouting
     del network.nodes[1]
     network.send_message(0, 3, "Node 1 is down, but this message should still get through")
+
+    # Close the MongoDB connection
+    network.client.close()

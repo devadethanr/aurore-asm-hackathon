@@ -1,1 +1,1 @@
-{"node_id": 3, "connections": [4], "messages": ["Node 1 is down, but this message should still get through"]}
+{"node_id": 3, "connections": [4], "messages": ["Node 1 is down, but this message should still get through", "Node 1 is down, but this message should still get through"]}
