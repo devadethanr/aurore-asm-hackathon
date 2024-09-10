@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RescueNet Admin - Emergency Messages</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bright-red': '#FF0000',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-white text-black">
+    <header class="bg-bright-red text-white p-4 shadow-md">
+        <div class="container mx-auto">
+            <h1 class="text-3xl font-bold">RescueNet Admin</h1>
+        </div>
+    </header>
+
+    <main class="container mx-auto mt-8 px-4">
+        <h2 class="text-2xl font-bold mb-4">Emergency Messages</h2>
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Message</th>
+                        <th>Timestamp</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for message in emergency_messages %}
+                    <tr>
+                        <td>{{ message.name }}</td>
+                        <td>{{ message.phone }}</td>
+                        <td>{{ message.message }}</td>
+                        <td>{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>
+                            <button onclick="assignResponders('{{ message._id }}')" class="btn btn-sm bg-blue-500 text-white hover:bg-blue-700">Assign Responders</button>
+                            <button onclick="broadcastMessage('{{ message._id }}')" class="btn btn-sm bg-green-500 text-white hover:bg-green-700">Broadcast</button>
+                            <button onclick="relieveMessage('{{ message._id }}')" class="btn btn-sm bg-red-500 text-white hover:bg-red-700">Relieve</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <dialog id="assignModal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">First Responders Assigned</h3>
+            <p class="py-4">First responders have been assigned to the emergency.</p>
+            <div class="modal-action">
+                <form method="dialog">
+                    <button class="btn">Close</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="broadcastModal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Message Broadcasted</h3>
+            <p class="py-4">The emergency message has been broadcasted.</p>
+            <div class="modal-action">
+                <form method="dialog">
+                    <button class="btn">Close</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="relieveModal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Message Relieved</h3>
+            <p class="py-4">The emergency message has been relieved and deleted from the database.</p>
+            <div class="modal-action">
+                <form method="dialog">
+                    <button class="btn">Close</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
+    <script>
+        function assignResponders(messageId) {
+            fetch('/assign_responders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `message_id=${messageId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('assignModal').showModal();
+                }
+            });
+        }
+
+        function broadcastMessage(messageId) {
+            fetch('/broadcast_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `message_id=${messageId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('broadcastModal').showModal();
+                }
+            });
+        }
+
+        function relieveMessage(messageId) {
+            fetch('/relieve_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `message_id=${messageId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('relieveModal').showModal();
+                    // Remove the row from the table
+                    document.querySelector(`tr[data-message-id="${messageId}"]`).remove();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+    
